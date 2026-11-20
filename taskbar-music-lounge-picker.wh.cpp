@@ -2,7 +2,7 @@
 // @id              taskbar-music-lounge-picker
 // @name            Taskbar Music Lounge (Source Picker)
 // @description     A native-style music ticker with media controls and a right-click playback source picker.
-// @version         1.0.1
+// @version         1.0.2
 // @author          ciahciach
 // @github          https://github.com/ciahciach
 // @include         explorer.exe
@@ -76,7 +76,6 @@ so it survives Explorer and Windhawk restarts. Delete that value to reset.
   $name: Acrylic Tint Opacity (0-255). Keep 0 for pure glass.
 - EnableSourcePicker: true
   $name: Right-click playback source picker
-  $description: Right-click the widget to choose which media app the panel follows.
 */
 // ==/WindhawkModSettings==
 
@@ -90,7 +89,6 @@ so it survives Explorer and Windhawk restarts. Delete that value to reset.
 #include <vector>
 #include <map>
 #include <utility>
-#include <atomic>
 #include <thread>
 #include <mutex>
 #include <cwctype>
@@ -889,15 +887,16 @@ void DrawSourceMenu(HDC hdc, int width, int height) {
     DWORD textRGB = GetCurrentTextColor() & 0x00FFFFFF;
     int luminance = (((textRGB >> 16) & 0xFF) + ((textRGB >> 8) & 0xFF) + (textRGB & 0xFF)) / 3;
     bool light = luminance < 128;
-    Color mainColor{GetCurrentTextColor()};
-    Color mutedColor = light ? Color(170, 0, 0, 0) : Color(170, 255, 255, 255);
+    Color mainColor(GetCurrentTextColor());
+    Color mutedColor(light ? Color(170, 0, 0, 0) : Color(170, 255, 255, 255));
     DWORD accentRGB = GetAccentColorRGB();
     Color accentColor(255, (BYTE)((accentRGB >> 16) & 0xFF), (BYTE)((accentRGB >> 8) & 0xFF), (BYTE)(accentRGB & 0xFF));
 
     // Card: near-opaque so the panel stays readable with and without acrylic.
     GraphicsPath card;
     AddRoundedRect(card, 0, 0, width, height, 8);
-    SolidBrush cardBrush{light ? Color(214, 249, 249, 249) : Color(218, 26, 26, 28)};
+    Color cardColor(light ? Color(214, 249, 249, 249) : Color(218, 26, 26, 28));
+    SolidBrush cardBrush(cardColor);
     graphics.FillPath(&cardBrush, &card);
 
     FontFamily fontFamily(FONT_NAME, nullptr);
@@ -906,25 +905,28 @@ void DrawSourceMenu(HDC hdc, int width, int height) {
     if (headerSize < 9) headerSize = 9;
     Font headerFont(&fontFamily, (REAL)headerSize, FontStyleRegular, UnitPixel);
 
-    SolidBrush mainBrush{mainColor};
-    SolidBrush mutedBrush{mutedColor};
+    SolidBrush mainBrush(mainColor);
+    SolidBrush mutedBrush(mutedColor);
 
     for (size_t i = 0; i < g_MenuRows.size(); i++) {
         MenuRow& row = g_MenuRows[i];
         int index = (int)i;
 
         if (row.kind == MenuRow::kSeparator) {
-            Pen separator{light ? Color(46, 0, 0, 0) : Color(46, 255, 255, 255), 1.0f};
-            graphics.DrawLine(&separator, (REAL)g_MenuPadX, (REAL)(row.y + row.h / 2),
-                              (REAL)(width - g_MenuPadX), (REAL)(row.y + row.h / 2));
+            Color separatorColor(light ? Color(46, 0, 0, 0) : Color(46, 255, 255, 255));
+            Pen separator(separatorColor, 1.0f);
+            REAL lineY = (REAL)(row.y + row.h / 2);
+            graphics.DrawLine(&separator, (REAL)g_MenuPadX, lineY,
+                              (REAL)(width - g_MenuPadX), lineY);
             continue;
         }
 
-        bool hovered = row.clickable && index == g_MenuHover;
+        bool hovered = row.clickable && (index == g_MenuHover);
         if (hovered) {
             GraphicsPath highlight;
             AddRoundedRect(highlight, g_MenuPadX - 2, row.y, width - (g_MenuPadX - 2) * 2, row.h, 5);
-            SolidBrush highlightBrush{light ? Color(26, 0, 0, 0) : Color(32, 255, 255, 255)};
+            Color highlightColor(light ? Color(26, 0, 0, 0) : Color(32, 255, 255, 255));
+            SolidBrush highlightBrush(highlightColor);
             graphics.FillPath(&highlightBrush, &highlight);
         }
 
