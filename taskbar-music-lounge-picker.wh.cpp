@@ -2,7 +2,7 @@
 // @id              taskbar-music-lounge-picker
 // @name            Taskbar Music Lounge (Source Picker)
 // @description     A native-style music ticker with media controls and a right-click playback source picker.
-// @version         1.0.0
+// @version         1.0.1
 // @author          ciahciach
 // @github          https://github.com/ciahciach
 // @include         explorer.exe
@@ -58,7 +58,7 @@ so it survives Explorer and Windhawk restarts. Delete that value to reset.
   $name: Panel Height
 - FontSize: 11
   $name: Font Size
-- ButtonScale: 1.0
+- ButtonScale: "1.0"
   $name: Button Scale (1.0 = Normal, 2.0 = 4K)
 - HideFullscreen: false
   $name: Hide when Fullscreen
@@ -70,7 +70,7 @@ so it survives Explorer and Windhawk restarts. Delete that value to reset.
   $name: Y Offset
 - AutoTheme: true
   $name: Auto Theme
-- TextColor: 0xFFFFFF
+- TextColor: "0xFFFFFF"
   $name: Manual Text Color (Hex)
 - BgOpacity: 0
   $name: Acrylic Tint Opacity (0-255). Keep 0 for pure glass.
